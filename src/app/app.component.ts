@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import {createPlayerClient, PlayerClient} from '@reveldigital/client-sdk';
+import { createPlayerClient, PlayerClient } from '@reveldigital/client-sdk';
 import { EventType } from '@reveldigital/client-sdk/dist/enums/event-types';
-import {state} from "@angular/animations";
+
 
 @Component({
   selector: 'app-root',
@@ -9,8 +9,10 @@ import {state} from "@angular/animations";
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'ng-test-client-sdk';
-  state = 'Not ready';
+  sdk: PlayerClient;
+
+  state: any;
+  deviceName: any;
   localTime: any;
   deviceTime: any;
   TZName: any;
@@ -23,32 +25,33 @@ export class AppComponent {
   commandMap: any;
   prefs: any;
   style: any;
-  sdk: PlayerClient;
-  constructor() {
-    this.state = 'ready'// Initialize the SDK
+  isPreviewMode: any;
 
+
+  constructor() {
     this.sdk = createPlayerClient({
       useLegacyEventHandling: true
     });
 
-    this.sdk.on(EventType.START,  ()=> {
-      this.state = 'started'
-      console.log('Player started');
-      this.sdk.getDevice().then(function (device) {
-        console.log('Device: ' + device);
-      })
+    this.sdk.on(EventType.START, () => {
+      this.state = 'Started'
     });
 
-    this.sdk.on(EventType.COMMAND, function (data) {
+    this.sdk.on(EventType.STOP, () => {
+      this.state = 'Stopped'
+    });
+
+    this.sdk.on(EventType.COMMAND, (data) => {
       console.log('Command received: ' + data);
     });
 
-    this.sdk.isPreviewMode().then(function (isPreview) {
-      console.log('Is preview mode: ' + isPreview);
+    this.sdk.isPreviewMode().then((isPreview) => {
+      this.isPreviewMode = isPreview;
     });
 
-
-
+    this.sdk.getDevice().then((device) => {
+      this.deviceName = device?.name;
+    })
   }
 
   ngOnInit(): void {
@@ -97,15 +100,15 @@ export class AppComponent {
   }
 
   sendCommand() {
-    this.sdk.sendCommand("test", "it");
+    this.sdk.sendCommand('test', 'it');
   }
 
   sendRemoteCommand() {
-    this.sdk.sendRemoteCommand([this.remoteDeviceKey], "test", "it");
+    this.sdk.sendRemoteCommand([this.remoteDeviceKey], 'test', 'it');
   }
 
   trackEvent() {
-    this.sdk.track("test", { "a": "b" });
+    this.sdk.track('test', { 'a': 'b' });
   }
 
   callback() {
@@ -113,7 +116,6 @@ export class AppComponent {
   }
 
   finish() {
-
     this.sdk.finish();
   }
 }
