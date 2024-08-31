@@ -29,11 +29,15 @@ jobs:
         run: ng build
 
       - name: Deploy webapp to Revel CMS
+        id: deploy-webapp
         uses: RevelDigital/webapp-action@v1.0.14
         with:
           api-key: ${{ secrets.Revel_API_key }}
           environment: ${{ github.head_ref || github.ref_name }}
 
-
-
-
+      - name: if my-webapp published
+        if: fromJSON(steps.deploy-webapp.outputs.published).*
+        run: |
+            MEDIA="${{ fromJSON(steps.deploy-webapp.outputs.published).media }}"
+            echo "Published webapp: $MEDIA"
+            
