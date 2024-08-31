@@ -38,6 +38,5 @@ jobs:
       - name: if my-webapp published
         if: fromJSON(steps.deploy-webapp.outputs.published).*
         run: |
-            MEDIA="${{ fromJSON(steps.deploy-webapp.outputs.published).media }}"
+            MEDIA="${{ fromJSON(steps.deploy-webapp.outputs.published).media.name }}"
             echo "Published webapp: $MEDIA"
-            
